@@ -108,7 +108,6 @@ function GoogleMap() {
 }
 
 import axios from "axios";
-import { error } from "console";
 
 function Weather({
   longitude,
