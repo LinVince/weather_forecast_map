@@ -15,10 +15,16 @@ const INITIAL_VIEW_STATE = {
   transitionDuration: 1000,
 };
 
+interface LocationData {
+  latitude: number;
+  longitude: number;
+  placeID: string;
+}
+
 function GoogleMap() {
-  const [viewState, setViewState] = useState<any>(INITIAL_VIEW_STATE);
-  const [locationData, setLocationData] = useState<any>({});
-  const mapRef = useRef<any>(null);
+  const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
+  const mapRef = useRef(null);
   const googleMapInstance = useRef<any>(null);
 
   const loader = new Loader({
@@ -29,11 +35,11 @@ function GoogleMap() {
 
   useEffect(() => {
     if (locationData) {
-      setViewState((preState: any) => ({
+      setViewState({
         ...viewState,
         latitude: locationData.latitude,
         longitude: locationData.longitude,
-      }));
+      });
     } else {
       setViewState(INITIAL_VIEW_STATE);
     }
@@ -86,10 +92,16 @@ function GoogleMap() {
         style={{ width: "100%", height: "100vh", position: "relative" }}
       />
       <Box sx={{ position: "absolute", index: 0, top: 0, left: 0 }}>
-        <Weather
-          longitude={locationData.longitude}
-          latitude={locationData.latitude}
-        />
+        {locationData ? (
+          <Weather
+            longitude={locationData.longitude}
+            latitude={locationData.latitude}
+          />
+        ) : (
+          <Box sx={{ p: 2, backgroundColor: "#fff" }}>
+            Select a place for weather forecast
+          </Box>
+        )}
       </Box>
     </>
   );
@@ -106,12 +118,10 @@ function Weather({
 }) {
   const [weatherInfo, setWeatherInfo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchWeatherData = async () => {
       setIsLoading(true);
-      setError(null);
 
       const params = {
         latitude: latitude,
@@ -132,7 +142,7 @@ function Weather({
 
         setWeatherInfo(data.daily);
       } catch (error) {
-        setError("Error fetching weather data");
+        console.log("Error fetching weather data:", error);
       } finally {
         setIsLoading(false);
       }
