@@ -108,6 +108,7 @@ function GoogleMap() {
 }
 
 import axios from "axios";
+import { error } from "console";
 
 function Weather({
   longitude,
@@ -120,6 +121,15 @@ function Weather({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    const isValidLongitude = longitude >= -180 && longitude <= 180;
+    const isValidLatitude = latitude >= -90 && latitude <= 90;
+
+    if (!isValidLongitude || !isValidLatitude) {
+      throw new Error(
+        `Invalid coordinates: Longitude must be between -180 and 180, and Latitude must be between -90 and 90.`
+      );
+    }
+
     const fetchWeatherData = async () => {
       setIsLoading(true);
 
